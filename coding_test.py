@@ -1,95 +1,95 @@
 class Calculator:
-    """스택을 구현하는 클래스"""
     def __init__(self):
-        """스택 초기화"""
-        self.items = []
+        """
+        Calculator 클래스의 생성자입니다.
+        연산자와 피연산자를 저장할 스택을 초기화합니다.
+        """
+        self.operator_stack = []
+        self.number_stack = []
 
-    def push(self, item):
-        """스택에 요소 추가"""
-        self.items.append(item)
+    def __del__(self):
+        """
+        Calculator 클래스의 소멸자입니다.
+        현재는 아무 동작도 수행하지 않습니다.
+        """
+        pass
 
-    def pop(self):
-        """스택에서 요소 제거"""
-        if not self.is_empty():
-            return self.items.pop()
+    def is_operator(self, char):
+        """
+        주어진 문자가 연산자인지 여부를 확인하는 메서드입니다.
 
-    def is_empty(self):
-        """스택이 비어 있는지 확인"""
-        return len(self.items) == 0
+        Parameters:
+            char (str): 확인할 문자
 
-    def peek(self):
-        """스택의 맨 위 요소 확인"""
-        if not self.is_empty():
-            return self.items[-1]
+        Returns:
+            bool: 주어진 문자가 연산자이면 True, 아니면 False
+        """
+        return char in ['+', '-', '*', '/']
 
-def perform_operation(operator, operand1, operand2):
-    """주어진 연산자로 두 피연산자를 계산하는 함수"""
-    if operator == '+':
-        return operand1 + operand2
-    elif operator == '-':
-        return operand1 - operand2
-    elif operator == '*':
-        return operand1 * operand2
-    elif operator == '/':
-        if operand2 != 0:
+    def calculate(self, operator, operand1, operand2):
+        """
+        주어진 연산자와 피연산자들을 사용하여 계산을 수행하는 메서드입니다.
+
+        Parameters:
+            operator (str): 연산자
+            operand1 (int): 피연산자1
+            operand2 (int): 피연산자2
+
+        Returns:
+            float: 계산 결과
+        """
+        if operator == '+':
+            return operand1 + operand2
+        elif operator == '-':
+            return operand1 - operand2
+        elif operator == '*':
+            return operand1 * operand2
+        elif operator == '/':
+            if operand2 == 0:
+                raise ValueError("0으로 나눌 수 없습니다.")
             return operand1 / operand2
+
+    def evaluate_expression(self, expression):
+        """
+        주어진 수식을 평가하는 메서드입니다.
+
+        Parameters:
+            expression (str): 평가할 수식
+
+        Returns:
+            float: 수식의 평가 결과
+
+        Raises:
+            ValueError: 수식에 오류가 있는 경우 발생
+        """
+        for char in expression:
+            if char.isdigit():
+                self.number_stack.append(int(char))
+            elif self.is_operator(char):
+                self.operator_stack.append(char)
+            elif char == '(':
+                self.operator_stack.append(char)
+            elif char == ')':
+                if len(self.operator_stack) == 0 or self.operator_stack[-1] != '(':
+                    raise ValueError("괄호의 짝이 맞지 않습니다.")
+                while len(self.operator_stack) > 0 and self.operator_stack[-1] != '(':
+                    operator = self.operator_stack.pop()
+                    operand2 = self.number_stack.pop()
+                    operand1 = self.number_stack.pop()
+                    result = self.calculate(operator, operand1, operand2)
+                    self.number_stack.append(result)
+                self.operator_stack.pop()  # '(' 제거
+
+        while len(self.operator_stack) > 0:
+            operator = self.operator_stack.pop()
+            operand2 = self.number_stack.pop()
+            operand1 = self.number_stack.pop()
+            result = self.calculate(operator, operand1, operand2)
+            self.number_stack.append(result)
+
+        if len(self.number_stack) == 1:
+            return self.number_stack[0]
         else:
-            raise ValueError("0으로 나눌 수 없습니다.")
-
-def calculate_expression(expression):
-    """
-    후위 표기법으로 표현된 수식을 계산하는 함수
-
-    Parameters:
-    - expression (str): 후위 표기법으로 표현된 수식
-
-    Returns:
-    - 결과값 (float 또는 int): 계산 결과
-
-    Raises:
-    - ValueError: 유효하지 않은 수식이거나 0으로 나누기 시도한 경우
-    """
-    operand_stack = Calculator()
-    operator_stack = Calculator()
-
-    operators = set(['+', '-', '*', '/'])
-    open_parentheses = set(['(', '[', '{'])
-    close_parentheses = set([')', ']', '}'])
-    parentheses_pairs = {')': '(', ']': '[', '}': '{'}
-
-    try:
-        for token in expression.split():
-            if token.isdigit():
-                operand_stack.push(int(token))
-            elif token in operators:
-                operator_stack.push(token)
-            elif token in open_parentheses:
-                operator_stack.push(token)
-            elif token in close_parentheses:
-                open_parenthesis = parentheses_pairs[token]
-                while operator_stack.peek() != open_parenthesis:
-                    operator = operator_stack.pop()
-                    operand2 = operand_stack.pop()
-                    operand1 = operand_stack.pop()
-                    result = perform_operation(operator, operand1, operand2)
-                    operand_stack.push(result)
-                operator_stack.pop()  # 열린 괄호를 제거
-            else:
-                raise ValueError("수식에 유효하지 않은 토큰이 있습니다: {}".format(token))
-
-        while not operator_stack.is_empty():
-            operator = operator_stack.pop()
-            operand2 = operand_stack.pop()
-            operand1 = operand_stack.pop()
-            result = perform_operation(operator, operand1, operand2)
-            operand_stack.push(result)
-
-        if operand_stack.is_empty() or not operator_stack.is_empty():
-            raise ValueError("유효하지 않은 수식입니다.")
-
-        return operand_stack.pop()
-
-    except (ValueError, IndexError, KeyError):
-        raise ValueError("유효하지 않은 수식입니다.")
+            raise ValueError("수식이 올바르지 않습니다.")
 
 

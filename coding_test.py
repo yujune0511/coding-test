@@ -1,3 +1,9 @@
+import math
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+
 class Calculator:
     def __init__(self):
         """
@@ -93,3 +99,97 @@ class Calculator:
             raise ValueError("수식이 올바르지 않습니다.")
 
 
+
+class EngineerCalculator(Calculator):
+    def __init__(self):
+        """
+        EngineerCalculator 클래스의 생성자입니다.
+        Calculator 클래스의 생성자를 호출하여 기본적인 초기화를 수행합니다.
+        """
+        super().__init__()
+
+    def calculate_trigonometric(self, func, angle):
+        """
+        삼각함수(sin, cos, tan)를 계산하는 메서드입니다.
+
+        Parameters:
+            func (str): 삼각함수 종류 ('sin', 'cos', 'tan')
+            angle (float): 각도 (라디안)
+
+        Returns:
+            float: 계산 결과
+        """
+        if func == 'sin':
+            return math.sin(angle)
+        elif func == 'cos':
+            return math.cos(angle)
+        elif func == 'tan':
+            return math.tan(angle)
+
+    def calculate_factorial(self, n):
+        """
+        팩토리얼을 계산하는 메서드입니다. (재귀 방식)
+
+        Parameters:
+            n (int): 팩토리얼을 계산할 정수
+
+        Returns:
+            int: 계산 결과
+        """
+        if n == 0 or n == 1:
+            return 1
+        else:
+            return n * self.calculate_factorial(n - 1)
+
+    def calculate_matrix(self, matrix1, matrix2):
+        """
+        행렬 곱셈을 계산하는 메서드입니다.
+
+        Parameters:
+            matrix1 (numpy.ndarray): 첫 번째 행렬
+            matrix2 (numpy.ndarray): 두 번째 행렬
+
+        Returns:
+            numpy.ndarray: 행렬 곱셈 결과
+        """
+        return np.dot(matrix1, matrix2)
+
+    def plot_graph(self, x_values, y_values, title, xlabel, ylabel):
+        """
+        주어진 x, y 값으로 그래프를 작성하는 메서드입니다.
+
+        Parameters:
+            x_values (list): x 축 값들
+            y_values (list): y 축 값들
+            title (str): 그래프 제목
+            xlabel (str): x 축 레이블
+            ylabel (str): y 축 레이블
+        """
+        plt.plot(x_values, y_values)
+        plt.title(title)
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
+        plt.show()
+
+# Example usage:
+engineer_calculator = EngineerCalculator()
+
+# 삼각함수 계산
+angle_rad = math.radians(45)  # 45도를 라디안으로 변환
+print(f"sin(45도): {engineer_calculator.calculate_trigonometric('sin', angle_rad)}")
+print(f"cos(45도): {engineer_calculator.calculate_trigonometric('cos', angle_rad)}")
+print(f"tan(45도): {engineer_calculator.calculate_trigonometric('tan', angle_rad)}")
+
+# 행렬 곱셈 계산
+matrix1 = np.array([[1, 2], [3, 4]])
+matrix2 = np.array([[5, 6], [7, 8]])
+result_matrix = engineer_calculator.calculate_matrix(matrix1, matrix2)
+print(f"행렬 곱셈 결과:\n{result_matrix}")
+
+# 팩토리얼 계산
+print(f"5! = {engineer_calculator.calculate_factorial(5)}")
+
+# 그래프 작성
+x_values = np.linspace(0, 2 * np.pi, 100)
+y_values = np.sin(x_values)
+engineer_calculator.plot_graph(x_values, y_values, "Sin Function", "Angle (radians)", "sin(x)")
